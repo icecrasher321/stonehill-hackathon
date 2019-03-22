@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api',
     'rest_framework',
+    'multiselectfield',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -73,17 +75,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'stoneh.wsgi.application'
 
-REST_FRAMEWORK = {
 
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
-
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.BasicAuthentication',
-
-    )
-}
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
@@ -113,6 +105,10 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
+}
 
 ALLOWED_HOSTS = [ '192.168.113.208', '127.0.0.1' ]
 

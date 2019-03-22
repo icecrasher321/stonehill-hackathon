@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.db.models import Q
 from .models import *
+import django_filters.rest_framework
+from django_filters import NumberFilter
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework import generics, mixins
 from rest_framework.permissions import IsAuthenticated
@@ -11,15 +13,38 @@ class DishPrefAPIView(mixins.UpdateModelMixin, generics.ListCreateAPIView): # De
     #lookup_field            = 'pk' # slug, id # url(r'?P<pk>\d+')
     serializer_class        = DishPrefSerializer
 
+
     def put(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
+        return self.update(request, *args, **kwargs)
 
     def get_queryset(self):
         return DishPref.objects.all()
 
-class UserAPIView(generics.CreateAPIView):
+class UserAPIView(mixins.UpdateModelMixin, generics.ListCreateAPIView):
+
+    model = User
+    queryset = User.objects.all()
+    def put(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
     serializer_class = UserSerializer
+
+
+class UserUpdateAPIView(generics.RetrieveUpdateAPIView):
+
+
+    queryset = User.objects.all()
+    serializer_class = UserUpdateSerializer
+
+    lookup_field = 'pk'
+
+    def get_serializer_context(self, *args, **kwargs):
+        return {"request": self.request}
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+
 
 def restform(request):
 
