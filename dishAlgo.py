@@ -128,3 +128,98 @@ def findRelevantCuisines(restaurantid):
 	locuisine = details[u'cuisines']
 	cuisines = locuisine.split(', ')
 
+
+headers = {
+    'x-app-id': 'ad5a69a3',
+    'x-app-key': '355005d5e8bb9b8b6b91b172ebe74e0b'
+}
+
+
+dish = "Vegetable Hakka Noodles"
+data = '{"query":"%s"}' % dish
+response = requests.post('https://trackapi.nutritionix.com/v2/natural/nutrients', headers=headers, data=data)
+json_data = response.json()
+
+totalfats = 0
+fibre = 0
+carbs = 0
+protein = 0
+sat_fats = 0
+sugars = 0
+cholestrol = 0
+sodium = 0
+
+for i in range(len(json_data[u'foods'])):
+    totalfats += json_data[u'foods'][i][u'nf_total_fat']
+    fibre += json_data[u'foods'][i][u'nf_dietary_fiber']
+    carbs += json_data[u'foods'][i][u'nf_dietary_fiber']
+    protein += json_data[u'foods'][i][u'nf_protein']
+    sat_fats += json_data[u'foods'][i][u'nf_saturated_fat']
+    sugars += json_data[u'foods'][i][u'nf_sugars']
+    cholestrol += json_data[u'foods'][i][u'nf_cholesterol']
+    sodium += json_data[u'foods'][i][u'nf_sodium']
+
+def findProteinIndex(age):
+    overThirty = (age - 30)
+    if overThirty > 0:
+        required = (1.05*overThirty*(5/3))
+    else:
+        required = (50/3)
+    protein_index = abs(required - protein)
+    return protein_index
+
+
+def findCarbsIndex():
+
+    required = (310/3)
+    carbs_index = abs(required - carbs)
+    return carbs_index
+
+
+def findFatIndex():
+
+    required = (70/3)
+    fats_index = abs(required - totalfats)
+    return fats_index
+
+
+def findSATFatIndex():
+
+    required = 8
+    sat_fats_index = abs(required - totalfats)
+    return sat_fats_index
+
+
+def findFibreIndex(age):
+
+    if age < 5:
+        required = 5
+    elif age < 11:
+        required = 20/3
+    elif age < 16:
+        required = 25/3
+    else:
+        required = 10
+    fibre_index = abs(required - fibre)
+    return fibre_index
+
+
+def findSodiumIndex():
+
+    required = 2.3/3
+    sodium_index = abs(required - totalfats)
+    return sodium_index
+
+
+def findSugarsIndex():
+
+    required = 10
+    sugars_index = abs(required - totalfats)
+    return sugars_index
+
+
+def findDishHealth(age):
+
+    dish_health_index = findSugarsIndex() + findSodiumIndex() + findFibreIndex(age) + findFatIndex() + findSATFatIndex() + findCarbsIndex() + findProteinIndex(age)
+    return dish_health_index
+
