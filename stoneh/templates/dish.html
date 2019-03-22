@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<h2>New Dish</h2>
+    <form method="POST" class="post-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+
+
+</body>
+</html>

@@ -1,0 +1,105 @@
+<head>
+    <meta charset="UTF-8">
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+      <!--Import Google Icon Font-->
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+      <!--Import materialize.css-->
+      <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
+
+      <!--Let browser know website is optimized for mobile-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link href = "http://www.w3.org/1999/xhtml?" >
+
+<style>
+
+
+.input-field input:focus + label, .materialize-textarea:focus:not([readonly]) + label{
+   color: #008080!important;
+ }
+
+::placeholder {
+    color: #008080;
+    opacity: 1;
+}
+
+
+.row .input-field input:focus ,.materialize-textarea:focus:not([readonly]) {
+     border-bottom: 1px ##008080!important;
+     box-shadow: 0 1px 0 0 #008080 !important;
+     }
+
+.material-icons{
+  color:#008080;
+  }
+.material-icons-prefix:active{
+      color:#008080
+}
+select {
+    display:block;
+}
+
+
+.input{
+display:block;
+}
+
+form {
+display:inline-block;
+}
+
+div {
+text-align:center;
+}
+
+a {
+color: #008080;
+}
+l{
+color:#808080
+}
+
+
+
+
+
+</style>
+
+
+</head>
+<body>
+<div class = "container">
+    <div class = "row">
+    <div class = "col s6 offset-s3">
+        <div class ="card-panel hoverable">
+            <center>
+
+                <h2>Register</h2>
+                <h6>Already have an account? <a href = "login">Click Here</a> </h6>
+                </center>
+
+              <form method = "POST">
+
+                  {% csrf_token %}
+                  {{ form.as_p }}
+
+
+                    <div class = "center">
+                          <div class = "row">
+                                <button class="btn waves-effect waves-light blue lighten-2" type="Submit" name="action">Submit
+
+                                </button>
+                          </div>
+                    </div>
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    </body>
