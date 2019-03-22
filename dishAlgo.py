@@ -25,7 +25,7 @@ def findHealthIndex(restaurant):
 		totalhealthindex += findDishHealth(dish)
 	return totalhealthindex/len(dishes)
 
-def get_restaurants(lat, lon, userpreferences):
+def get_restaurants(lat, lon, tryNew, initializing=null):
 
 	p = Pyzomato("c9637e1f0c0413b00d0d182199c7bf62")
 	geocode_data = p.getByGeocode(lat, lon)
@@ -46,10 +46,13 @@ def get_restaurants(lat, lon, userpreferences):
 		rating = float(details[u'user_rating'][u'aggregate_rating'])
 		locuisine = details[u'cuisines']
 		cuisines = locuisine.split(', ')
-		cuisval = findCuisineValue(cuisines)
+		if not tryNew:
+			cuisval = findCuisineValue(cuisines)
+		else:
+			cuisval = -findCuisineValue(cuisines)
 		distance = distanceBetween(lat, lon, restlat, restlat)
 		cumhealth = findHealthIndex(rest)
-		value = disweight*distance + 5*cuisw*cuisval + rateweight*rating - priceweight*price + nutritionweight*cumhealth
+		value = disweight*distance + cuisw*cuisval + rateweight*rating - priceweight*price + nutritionweight*cumhealth
 		restindex[rest] = value
 		restname = details[u'name']
 		nameval[restname] = value
@@ -127,99 +130,81 @@ def findRelevantCuisines(restaurantid):
 	details = p.getRestaurantDetails(rest)
 	locuisine = details[u'cuisines']
 	cuisines = locuisine.split(', ')
+#########################################################################
+def nutritionixReq(age, dish):
+    headers = {
+        'x-app-id': 'ad5a69a3',
+        'x-app-key': '355005d5e8bb9b8b6b91b172ebe74e0b'
+    }
+    data = '{"query":"%s"}' % dish
+    response = requests.post('https://trackapi.nutritionix.com/v2/natural/nutrients', headers=headers, data=data)
+    json_data = response.json()
+    totalfats = 0
+    fibre = 0
+    carbs = 0
+    protein = 0
+    sat_fats = 0
+    sugars = 0
+    cholestrol = 0
+    sodium = 0
 
-
-headers = {
-    'x-app-id': 'ad5a69a3',
-    'x-app-key': '355005d5e8bb9b8b6b91b172ebe74e0b'
-}
-
-
-dish = "Vegetable Hakka Noodles"
-data = '{"query":"%s"}' % dish
-response = requests.post('https://trackapi.nutritionix.com/v2/natural/nutrients', headers=headers, data=data)
-json_data = response.json()
-
-totalfats = 0
-fibre = 0
-carbs = 0
-protein = 0
-sat_fats = 0
-sugars = 0
-cholestrol = 0
-sodium = 0
-
-for i in range(len(json_data[u'foods'])):
-    totalfats += json_data[u'foods'][i][u'nf_total_fat']
-    fibre += json_data[u'foods'][i][u'nf_dietary_fiber']
-    carbs += json_data[u'foods'][i][u'nf_dietary_fiber']
-    protein += json_data[u'foods'][i][u'nf_protein']
-    sat_fats += json_data[u'foods'][i][u'nf_saturated_fat']
-    sugars += json_data[u'foods'][i][u'nf_sugars']
-    cholestrol += json_data[u'foods'][i][u'nf_cholesterol']
-    sodium += json_data[u'foods'][i][u'nf_sodium']
-
-def findProteinIndex(age):
-    overThirty = (age - 30)
-    if overThirty > 0:
-        required = (1.05*overThirty*(5/3))
-    else:
-        required = (50/3)
-    protein_index = abs(required - protein)
-    return protein_index
-
-
-def findCarbsIndex():
-
-    required = (310/3)
-    carbs_index = abs(required - carbs)
-    return carbs_index
-
-
-def findFatIndex():
-
-    required = (70/3)
-    fats_index = abs(required - totalfats)
-    return fats_index
-
-
-def findSATFatIndex():
-
-    required = 8
-    sat_fats_index = abs(required - totalfats)
-    return sat_fats_index
-
-
-def findFibreIndex(age):
-
-    if age < 5:
-        required = 5
-    elif age < 11:
-        required = 20/3
-    elif age < 16:
-        required = 25/3
-    else:
+    for i in range(len(json_data[u'foods'])):
+        totalfats += json_data[u'foods'][i][u'nf_total_fat']
+        fibre += json_data[u'foods'][i][u'nf_dietary_fiber']
+        carbs += json_data[u'foods'][i][u'nf_dietary_fiber']
+        protein += json_data[u'foods'][i][u'nf_protein']
+        sat_fats += json_data[u'foods'][i][u'nf_saturated_fat']
+        sugars += json_data[u'foods'][i][u'nf_sugars']
+        cholestrol += json_data[u'foods'][i][u'nf_cholesterol']
+        sodium += json_data[u'foods'][i][u'nf_sodium']
+        overThirty = (age - 30)
+        if overThirty > 0:
+            required = (1.05*overThirty*(5/3))
+        else:
+            required = (50/3)
+        protein_index = abs(required - protein)
+        required = (310/3)
+        carbs_index = abs(required - carbs)
+        required = (70/3)
+        fats_index = abs(required - totalfats)
+        required = 8
+        sat_fats_index = abs(required - sat_fats)
+        if age < 5:
+            required = 5
+        elif age < 11:
+            required = 20/3
+        elif age < 16:
+            required = 25/3
+        else:
+            required = 10
+        fibre_index = abs(required - fibre)
+        required = 2.3/3
+        sodium_index = abs(required - totalfats)
         required = 10
-    fibre_index = abs(required - fibre)
-    return fibre_index
+        sugars_index = abs(required - sugars)
+        return [sugars_index, sodium_index, fibre_index, sat_fats_index, fats_index, carbs_index, protein_index]
 
 
-def findSodiumIndex():
-
-    required = 2.3/3
-    sodium_index = abs(required - totalfats)
-    return sodium_index
-
-
-def findSugarsIndex():
-
-    required = 10
-    sugars_index = abs(required - totalfats)
-    return sugars_index
-
-
-def findDishHealth(age):
-
-    dish_health_index = findSugarsIndex() + findSodiumIndex() + findFibreIndex(age) + findFatIndex() + findSATFatIndex() + findCarbsIndex() + findProteinIndex(age)
+def findDishHealth(age, dish):
+    paramsArray = nutritionixReq(age,dish)
+    dish_health_index = 0
+    for y in paramsArray:
+        dish_health_index += y
     return dish_health_index
 
+list_of_dishes = ["Vegetable Hakka Noodles", "Mango Icecream", "Margherita Pizza", "Chicken Burger"]
+
+## WRITE THE LIST OF DISHES OF REST HERE
+
+output = itertools.combinations(list_of_dishes, 3)
+triplet = ""
+highest = 10000000000000
+highestSub = ()
+for subset in output:
+    for x in subset:
+        triplet = triplet + " " + x
+    if findDishHealth(39, triplet) < highest:
+        highest = findDishHealth(39, triplet)
+    highestSub = subset
+
+## SEND HIGHEST SUB
