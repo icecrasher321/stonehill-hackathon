@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">MaterialSearchBar</string>
+    <string name="title_activity_main2">MaterialSearchBar C.S.A</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_main">MainActivity</string>
+
+    <string name="title_activity_welcome">Home Screen</string>
+    <string name="next">NEXT</string>
+    <string name="skip">SKIP</string>
+    <string name="start">GOT IT</string>
+
+    <string name="slide_1_title">Welcome to SpoonFeed</string>
+    <string name="slide_1_desc">Let\'s get started!</string>
+    <string name="slide_1_desc2">We make your life easier by providing you insight into what restaurants are right for you.</string>
+
+    <string name="slide_2_title">Account</string>
+    <string name="slide_2_desc">Set up an account so we can personalize your recommendations.</string>
+    <string name="button_text">SET</string>
+
+    <string name="slide_3_title">Preferences</string>
+    <string name="slide_3_desc"></string>
+
+    <string name="slide_4_title">Permissions</string>
+    <string name="slide_4_desc">We need your permission to start tracking usage time. All of the data resides on your phone and none of this is shared with anyone as it is a completely offline app. Click on the button, press on finalupload and then turn the switch on. Press the back button to come back.</string>
+    <string name="slide_4_desc2">GRANT PERMISSIONS</string>
+</resources>
