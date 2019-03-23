@@ -26,6 +26,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -75,6 +76,9 @@ public class WelcomeActivity extends AppCompatActivity {
     String username_text;
     String password_text;
     private static final String POST_PARAMS = "userName=Pankaj";
+    int price_for_post=300;
+    int nutrition_val=0;
+    int age_value;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,7 +140,6 @@ public class WelcomeActivity extends AppCompatActivity {
                 else if(current==1) {
                     if (username && password) {
                         viewPager.setCurrentItem(next);
-                        startActivity(new Intent(LongRunningGetIO.cl));
                     }
                     else{
                         Snackbar snackbar_details = Snackbar
@@ -146,12 +149,13 @@ public class WelcomeActivity extends AppCompatActivity {
                 }
                 else if(current==2) {
                     if (price_check) {
+                        new PostDetails().execute();
                         startActivity(new Intent(WelcomeActivity.this, MainActivity.class));
                         finish();
                     }
                     else {
                         Snackbar snackbar_preferences = Snackbar
-                                .make(findViewById(R.id.LayoutThreshold), "please enter your preferences", Snackbar.LENGTH_SHORT);
+                                .make(findViewById(R.id.LayoutThreshold), "upper limit for price must be greater than 300", Snackbar.LENGTH_SHORT);
                         snackbar_preferences.show();
                     }
                 }
@@ -237,12 +241,15 @@ public class WelcomeActivity extends AppCompatActivity {
         LinearLayout linearLayoutThreshold;
         LinearLayout linearLayoutPreferences;
         TextThumbSeekBar price;
+        TextThumbSeekBar nutrition;
         TimePicker pickThreshold;
         int minutes;
         int threshold_time;
         Button set_threshold;
         TextInputEditText username_box;
         TextInputEditText password_box;
+        NumberPicker age;
+
 
         int i=0;
 
@@ -309,6 +316,7 @@ public class WelcomeActivity extends AppCompatActivity {
             if(position==2){
                 linearLayoutPreferences=view.findViewById(R.id.LayoutPreferences);
                 price=linearLayoutPreferences.findViewById(R.id.price);
+                nutrition=linearLayoutPreferences.findViewById(R.id.nutrition);
                 price.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     @Override
                     public void onStopTrackingTouch(SeekBar seekBar) {
@@ -322,10 +330,25 @@ public class WelcomeActivity extends AppCompatActivity {
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                         if (progress >= 300) {
                             price_check = true;
+                            price_for_post=progress;
                         }
                         else{
                             price_check = false;
                         }
+                    }
+                });
+                nutrition.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+                    }
+
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        nutrition_val=progress;
                     }
                 });
             }
@@ -351,7 +374,7 @@ public class WelcomeActivity extends AppCompatActivity {
             container.removeView(view);
         }
     }
-    private class LongRunningGetIO extends AsyncTask <Void, Void, String> {
+    private class PostDetails extends AsyncTask <Void, Void, String> {
         protected String getASCIIContentFromEntity(HttpEntity entity) throws IllegalStateException, IOException {
             InputStream in = entity.getContent();
             StringBuffer out = new StringBuffer();
@@ -369,23 +392,38 @@ public class WelcomeActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(Void... params) {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpContext localContext = new BasicHttpContext();
-            HttpGet httpGet = new HttpGet("http://192.168.113.208:8080/api/dish/");
-            String text = null;
             try {
-                HttpResponse response = httpClient.execute(httpGet, localContext);
+                HttpClient httpClient = new DefaultHttpClient();
+                HttpContext localContext = new BasicHttpContext();
+                //HttpGet httpGet = new HttpGet("http://192.168.113.208:8080/api/dish/");
+                HttpPost httppost = new HttpPost("http://192.168.113.208:8080/api/user/");
+
+                List<NameValuePair> parameters = new ArrayList<NameValuePair>(5);
+                parameters.add(new BasicNameValuePair("username",username_text));
+                parameters.add(new BasicNameValuePair("password", password_text));
+                //parameters.add(new BasicNameValuePair("age",String.valueOf(age_value)));
+                parameters.add(new BasicNameValuePair("nutrition",String.valueOf(nutrition_val)));
+                parameters.add(new BasicNameValuePair("price", String.valueOf(price_for_post)));
+                httppost.setEntity(new UrlEncodedFormEntity(parameters, "UTF-8"));
+
+                HttpResponse response = httpClient.execute(httppost);
                 HttpEntity entity = response.getEntity();
-                text = getASCIIContentFromEntity(entity);
+
+                if (entity != null) {
+                    try (InputStream instream = entity.getContent()) {
+                        Log.d("MainActivity", "the content of get");
+                    }
+                }
             }
-            catch (Exception e) {
-                return e.getLocalizedMessage();
-            }
-            return text;
+            catch(Exception c){}
+            return "hello";
         }
+
+
+        @Override
         protected void onPostExecute(String results) {
             if (results!=null) {
-                Log.d("MainActivity",results);
+                Log.d("MainActivity","the results are:"+results);
             }
 
         }
